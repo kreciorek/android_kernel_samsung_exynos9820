@@ -65,4 +65,46 @@ fi
 
 #export toolchain paths
 export BUILD_CROSS_COMPILE="${HOME}/toolchains/gcc/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-"
-expo
+export BUILD_CC="${HOME}/toolchains/neutron-clang/bin/clang"
+
+#output dir
+if [ ! -d "${RDIR}/out" ]; then
+    mkdir -p "${RDIR}/out"
+fi
+
+#build dir
+if [ ! -d "${RDIR}/build" ]; then
+    mkdir -p "${RDIR}/build"
+else
+    rm -rf "${RDIR}/build" && mkdir -p "${RDIR}/build"
+fi
+
+#build options
+export ARGS="
+-C $(pwd) \
+O=$(pwd)/out \
+-j$(nproc) \
+ARCH=arm64 \
+CROSS_COMPILE=${BUILD_CROSS_COMPILE} \
+CC=${BUILD_CC} \
+CLANG_TRIPLE=aarch64-linux-gnu- \
+"
+
+#build kernel image
+build_kernel(){
+    cd "${RDIR}"
+    make ${ARGS} "${KERNEL_DEFCONFIG}" custom.config version.config
+    make ${ARGS} menuconfig
+    make ${ARGS}|| exit 1
+    cp ${RDIR}/out/arch/arm64/boot/Image* ${RDIR}/build
+}
+
+#build anykernel zip
+build_anykernel3(){
+    rm -f ${RDIR}/AnyKernel3/Image && cp ${RDIR}/build/Image ${RDIR}/AnyKernel3
+    cd ${RDIR}/AnyKernel3 && zip -r "../build/kret-${MODEL}-${BUILD_KERNEL_VERSION}-anykernel3-AOSP.zip" * && cd ${RDIR}
+    echo -e "\n[i] Build finished..!\n"
+}
+
+build_kernel
+build_anykernel3
