@@ -38,7 +38,7 @@ if [ -z "$BUILD_KERNEL_VERSION" ]; then
 fi
 
 #setting up localversion
-echo -e "CONFIG_LOCALVERSION_AUTO=n\nCONFIG_LOCALVERSION=\"-ravindu644-${BUILD_KERNEL_VERSION}-openela\"\n" > "${RDIR}/arch/arm64/configs/version.config"
+echo -e "CONFIG_LOCALVERSION_AUTO=n\nCONFIG_LOCALVERSION=\"-kret-${BUILD_KERNEL_VERSION}-openela\"\n" > "${RDIR}/arch/arm64/configs/version.config"
 
 #install requirements
 sudo apt install libarchive-tools zstd -y
